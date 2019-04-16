@@ -24,7 +24,6 @@ def read_csv(input_file):
     """
     usecols = ['Country', 'Region', 'Pop. Density (per sq. mi.)', 'Infant mortality (per 1000 births)', 'GDP ($ per capita) dollars']
     data = pd.read_csv(input_file, usecols=usecols)
-
     return data
 
 def clean(data):
@@ -40,7 +39,10 @@ def clean(data):
     # Delete any rows with more than 1 missing value
     data = data.dropna(thresh=4)
 
+    # Clean up each column
     # Convert final three columns to floats for calculations
+    data['Country'] = data['Country'].str.rstrip()
+    data['Region'] = data['Region'].str.rstrip()
     data['Pop. Density (per sq. mi.)'] = data['Pop. Density (per sq. mi.)'].str.replace(',', '.').astype(float)
     data['Infant mortality (per 1000 births)'] = data['Infant mortality (per 1000 births)'].str.replace(',', '.').astype(float)
     data['GDP ($ per capita) dollars'] = data['GDP ($ per capita) dollars'].str.rstrip(' dollars').astype(float)
@@ -65,13 +67,13 @@ def central_tendancy(data):
     """
     # Central Tendancy
     print("Central Tendency of GDP ($ per capita) dollars:")
-    print(f"mean = {data['GDP ($ per capita) dollars'].mean()}")
-    print(f"median = {data['GDP ($ per capita) dollars'].median()}")
-    print(f"mode = {data['GDP ($ per capita) dollars'].mode()[0]}")
-    print(f"std = {data['GDP ($ per capita) dollars'].std()}\n")
+    print(f"mean = {data.mean()}")
+    print(f"median = {data.median()}")
+    print(f"mode = {data.mode()[0]}")
+    print(f"std = {data.std()}\n")
 
     # Histogram of GDP
-    hist = data['GDP ($ per capita) dollars'].plot(kind='hist')
+    hist = data.plot(kind='hist')
     hist.set_xlabel('GDP ($ per capita) dollars')
     hist.set_title('Histogram of GDP')
 
@@ -88,11 +90,11 @@ def five_number_summary(data):
     """
     # Five number summary
     print("Five number summary of Infant Mortality:")
-    print(f"median = {data['Infant mortality (per 1000 births)'].median()}")
-    print(data['Infant mortality (per 1000 births)'].describe()[['min','25%','75%','max']])
+    print(f"median = {data.median()}")
+    print(data.describe()[['min','25%','75%','max']])
 
     # Boxplot of Infant Mortality
-    box = data['Infant mortality (per 1000 births)'].plot(kind='box')
+    box = data.plot(kind='box')
     box.set_title('Boxplot Infant Mortality')
 
     # Show boxplot for 3 seconds, prevent window blocking
@@ -113,12 +115,15 @@ if __name__ == "__main__":
     # Histogram showed Suriname as a 'wrong' outlier; the number was too high. Cleaned thereafter in dataset.
     # On the right is an outlier that does not need correction,
     # the statement below (not printed) shows that the country is Luxembourg, which is indeed a 'rich' country.
-    central_tendancy(data)
+    central_tendancy(data['GDP ($ per capita) dollars'])
     data.loc[data['GDP ($ per capita) dollars'] > 40000]
 
     # EDA Analysis Boxplot:
     # The boxplot shows a couple of outliers.
     # looking up the outliers (below) shows that they are 'poor' countries and
     # that 4 of them are located in the same region. Therefore, the outliers need not to be cleaned.
-    five_number_summary(data)
+    five_number_summary(data['Infant mortality (per 1000 births)'])
     data.loc[data['Infant mortality (per 1000 births)'] > 125]
+
+    data1 = data.set_index('Country')
+    data1.to_json(r'C:\Users\lr_va\Downloads\dataprocessing\homework\Week_2\eda.json', orient='index')
