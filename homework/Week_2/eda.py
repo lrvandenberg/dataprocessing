@@ -33,8 +33,8 @@ def clean(data):
     Deletes rows with to many missing values.
     Replaces other missing values or outliers with the mean of the column.
     """
-    # Missing values are indicated with NaN or the string 'unknown'
-    # Convert missing values indicated with string 'unknown' to NaN
+    # Missing values are indicated in the dataset with NaN or the string 'unknown'
+    # For consistency and calculation, convert all missing values to NaN
     data = data.replace(to_replace='unknown', value=np.nan)
 
     # Delete any rows with more than 1 missing value
@@ -64,19 +64,20 @@ def central_tendancy(data):
     Analyzes the histogram.
     """
     # Central Tendancy
+    print("Central Tendency of GDP ($ per capita) dollars:")
     print(f"mean = {data['GDP ($ per capita) dollars'].mean()}")
     print(f"median = {data['GDP ($ per capita) dollars'].median()}")
-    print(f"mode = {data['GDP ($ per capita) dollars'].mode()}")
-    print(f"std = {data['GDP ($ per capita) dollars'].std()}")
+    print(f"mode = {data['GDP ($ per capita) dollars'].mode()[0]}")
+    print(f"std = {data['GDP ($ per capita) dollars'].std()}\n")
 
     # Histogram of GDP
-    # Showed Suriname as a 'wrong' outlier
-    # Analysis: Data is not normally distributed. Most concentrated between 0 and 10000 dollars.
     hist = data['GDP ($ per capita) dollars'].plot(kind='hist')
     hist.set_xlabel('GDP ($ per capita) dollars')
     hist.set_title('Histogram of GDP')
+
+    # show histogram for 3 seconds, prevent window blocking
     plt.show(block=False)
-    plt.pause(4)
+    plt.pause(3)
     plt.close()
 
 def five_number_summary(data):
@@ -86,20 +87,38 @@ def five_number_summary(data):
     Analyzes the boxplot
     """
     # Five number summary
+    print("Five number summary of Infant Mortality:")
     print(f"median = {data['Infant mortality (per 1000 births)'].median()}")
     print(data['Infant mortality (per 1000 births)'].describe()[['min','25%','75%','max']])
 
     # Boxplot of Infant Mortality
     box = data['Infant mortality (per 1000 births)'].plot(kind='box')
     box.set_title('Boxplot Infant Mortality')
-    plt.show()
 
-    # Analysis
-    # Outliers: looking up the outliers (below) shows that they are 'poor' countries and that 4 of them are located in the same region
-    print(data.loc[data['Infant mortality (per 1000 births)'] > 125])
+    # Show boxplot for 3 seconds, prevent window blocking
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
+
 
 if __name__ == "__main__":
     data = read_csv('input.csv')
+
+    # Data is cleaned based on EDA analysis below.
     data = clean(data)
+
+    # EDA Analysis Histogram:
+    # Data is not normally distributed.
+    # Data is most concentrated between 0 and 10000 dollars, meaning most countries have a 'low' GDP
+    # Histogram showed Suriname as a 'wrong' outlier; the number was too high. Cleaned thereafter in dataset.
+    # On the right is an outlier that does not need correction,
+    # the statement below (not printed) shows that the country is Luxembourg, which is indeed a 'rich' country.
     central_tendancy(data)
+    data.loc[data['GDP ($ per capita) dollars'] > 40000]
+
+    # EDA Analysis Boxplot:
+    # The boxplot shows a couple of outliers.
+    # looking up the outliers (below) shows that they are 'poor' countries and
+    # that 4 of them are located in the same region. Therefore, the outliers need not to be cleaned.
     five_number_summary(data)
+    data.loc[data['Infant mortality (per 1000 births)'] > 125]
