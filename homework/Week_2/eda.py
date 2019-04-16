@@ -76,12 +76,10 @@ def central_tendancy(data):
     print(f"mode = {data.mode()[0]}")
     print(f"std = {data.std()}\n")
 
-    # Histogram of GDP
+    # Histogram of GDP, show for 1 second to prevent windo blocking
     hist = data.plot(kind='hist')
     hist.set_xlabel('GDP ($ per capita) dollars')
     hist.set_title('Histogram of GDP')
-
-    # show histogram for 2 seconds, prevent window blocking
     plt.show(block=False)
     plt.pause(1)
     plt.close()
@@ -106,11 +104,9 @@ def five_number_summary(data):
     print(f"median = {data.median()}")
     print(data.describe()[['min','25%','75%','max']])
 
-    # Boxplot of Infant Mortality
+    # Boxplot of Infant Mortality, show for 1 second to prevent window blocking
     box = data.plot(kind='box')
     box.set_title('Boxplot Infant Mortality')
-
-    # Show boxplot for 1 second, prevent window blocking
     plt.show(block=False)
     plt.pause(1)
     plt.close()
