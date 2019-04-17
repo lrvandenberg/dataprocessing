@@ -36,27 +36,27 @@ def clean(data):
     - Formats the data for correct usage.
     """
 
-    # For consistency and calculation, convert all missing values to NaN
+    # For consistency and calculation, converts all missing values to NaN
     data = data.replace(to_replace='unknown', value=np.nan)
 
-    # Delete any rows with more than 1 missing value
+    # Deletes any rows with more than 1 missing value
     data = data.dropna(thresh=4)
 
-    # Clean up each column
+    # Cleans up each column
     data['Country'] = data.iloc[: ,0].str.rstrip()
     data['Region'] = data.iloc[: ,1].str.rstrip()
     data['Pop. Density (per sq. mi.)'] = data.iloc[: ,2].str.replace(',', '.').astype(float)
     data['Infant mortality (per 1000 births)'] = data.iloc[: ,3].str.replace(',', '.').astype(float)
     data['GDP ($ per capita) dollars'] = data.iloc[: ,4].str.rstrip(' dollars').astype(float)
 
-    # Convert outliers in the dataframe to NaN:
+    # Converts outliers in the dataframe to NaN:
     # The result of the GDP histogram showed that a GDP was too high
     data['GDP ($ per capita) dollars'] = data.iloc[: ,4].replace(to_replace=400000, value=np.nan)
 
     # The result of a minimum value test showed that a Pop Density of zero occured somewhere
     data['Pop. Density (per sq. mi.)'] = data.iloc[: ,2].replace(to_replace=0, value=np.nan)
 
-    # Fill missing values (as indicated by NaN) with the mean of each column
+    # Fills missing values (as indicated by NaN) with the mean of each column
     data = data.fillna(data.mean())
 
     return data
@@ -75,7 +75,7 @@ def central_tendancy(data):
     print(f"mode = {data.mode()[0]}")
     print(f"std = {data.std()}\n")
 
-    # Histogram of GDP, show for 1 second to prevent windo blocking
+    # Histogram of GDP, shows for 1 second to prevent windo blocking
     hist = data.plot(kind='hist')
     hist.set_xlabel('GDP ($ per capita) dollars')
     hist.set_title('Histogram of GDP')
@@ -103,7 +103,7 @@ def five_number_summary(data):
     print(f"median = {data.median()}")
     print(data.describe()[['min','25%','75%','max']])
 
-    # Boxplot of Infant Mortality, show for 1 second to prevent window blocking
+    # Boxplot of Infant Mortality, shows for 1 second to prevent window blocking
     box = data.plot(kind='box')
     box.set_title('Boxplot Infant Mortality')
     plt.show(block=False)
@@ -125,15 +125,15 @@ def save_json(data):
 
 
 if __name__ == "__main__":
-    # Load in csv file
+    # Loads in csv file
     data = read_csv('input.csv')
 
-    # Clean data
+    # Cleans data
     data = clean(data)
 
-    # Calculate and visualize Central Tendancy and Five Number Summary
+    # Calculates and visualizes Central Tendancy and Five Number Summary
     central_tendancy(data['GDP ($ per capita) dollars'])
     five_number_summary(data['Infant mortality (per 1000 births)'])
 
-    # Save cleaned data to eda.json
+    # Saves cleaned data to eda.json
     save_json(data)
