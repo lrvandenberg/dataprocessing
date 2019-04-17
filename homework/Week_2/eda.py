@@ -2,9 +2,9 @@
 # Name: Lotte van den Berg
 # Student number: 12427241
 """
-This script loads in a dataset from a csv file, preproccesses it and visually analyzes it.
-To view the plots longer/shorter, please add time in the plt.pause() function.
+This script loads in a dataset from a csv file, preproccesses the dataset and then visually analyzes it.
 It returns a JSON file with the cleaned data.
+To view the plots longer/shorter, please add time in the plt.pause() function.
 """
 
 import pandas as pd
@@ -35,7 +35,7 @@ def clean(data):
     - Replaces missing values or 'wrong' outliers with the mean of the column.
     - Formats the data for correct usage.
     """
-    # Missing values are indicated in the dataset with NaN or the string 'unknown'
+
     # For consistency and calculation, convert all missing values to NaN
     data = data.replace(to_replace='unknown', value=np.nan)
 
@@ -43,14 +43,13 @@ def clean(data):
     data = data.dropna(thresh=4)
 
     # Clean up each column
-    # Convert final three columns to floats for calculations
     data['Country'] = data.iloc[: ,0].str.rstrip()
     data['Region'] = data.iloc[: ,1].str.rstrip()
     data['Pop. Density (per sq. mi.)'] = data.iloc[: ,2].str.replace(',', '.').astype(float)
     data['Infant mortality (per 1000 births)'] = data.iloc[: ,3].str.replace(',', '.').astype(float)
     data['GDP ($ per capita) dollars'] = data.iloc[: ,4].str.rstrip(' dollars').astype(float)
 
-    # Convert outliers in the dataframe to NaN
+    # Convert outliers in the dataframe to NaN:
     # The result of the GDP histogram showed that a GDP was too high
     data['GDP ($ per capita) dollars'] = data.iloc[: ,4].replace(to_replace=400000, value=np.nan)
 
@@ -65,7 +64,7 @@ def clean(data):
 
 def central_tendancy(data):
     """
-    Prints the mean, median, mode and standard deviation.
+    Prints the mean, median, mode and standard deviation of the GDP.
     Plots a histogram.
     Analyzes the histogram.
     """
@@ -95,9 +94,9 @@ def central_tendancy(data):
 
 def five_number_summary(data):
     """
-    Prints the median, minimum, maximum, first quartile, third quartile.
+    Prints the median, minimum, maximum, Q1 and Q3 of the infant mortality.
     Plots a boxplot.
-    Analyzes the boxplot
+    Analyzes the boxplot.
     """
     # Five number summary
     print("Five number summary of Infant Mortality:")
@@ -117,6 +116,13 @@ def five_number_summary(data):
     # that 4 of them are located in the same region. Therefore, the outliers need not to be cleaned.
     # Code used for looking up outlier: data.loc[data['Infant mortality (per 1000 births)'] > 125]
 
+def save_json(data):
+    """
+    Saves cleaned data to a json file with country as key.
+    """
+    data = data.set_index('Country')
+    data.to_json(r'C:\Users\lr_va\Downloads\dataprocessing\homework\Week_2\eda.json', orient='index')
+
 
 if __name__ == "__main__":
     # Load in csv file
@@ -130,5 +136,4 @@ if __name__ == "__main__":
     five_number_summary(data['Infant mortality (per 1000 births)'])
 
     # Save cleaned data to eda.json
-    data = data.set_index('Country')
-    data.to_json(r'C:\Users\lr_va\Downloads\dataprocessing\homework\Week_2\eda.json', orient='index')
+    save_json(data)
