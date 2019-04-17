@@ -100,7 +100,7 @@ def five_number_summary(data):
     """
     # Five number summary
     print("Five number summary of Infant Mortality:")
-    print(f"median = {data.median()}")
+    print(f"median   {data.median()}")
     print(data.describe()[['min','25%','75%','max']])
 
     # Boxplot of Infant Mortality, shows for 1 second to prevent window blocking
