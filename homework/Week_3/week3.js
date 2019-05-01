@@ -44,17 +44,21 @@ function preprocess(data){
 };
 
 function draw(ctx, canvas, datapoints) {
-  // Set range for drawing the line chart
+  // Set ranges for the line chart
   var padding = 50;
   var xRange = [0 + padding, canvas.width - padding];
+  // yRange starts with max value, so that the origin of the chart is in the left bottom corner
   var yRange = [canvas.height - padding, 0 + padding];
 
-  // Draw title, xlabel, ylabel
+  // Draw title
   ctx.textAlign="center"
   ctx.fillText('US births 2000-2014', canvas.width/2, padding/2);
+
+  // Draw x-label
   ctx.textAlign="right"
   ctx.fillText('Year', canvas.width - padding, canvas.height - padding/2);
 
+  // Draw y-label
   ctx.save();
   ctx.translate(20, 50);
   ctx.rotate(-Math.PI / 2);
@@ -64,21 +68,16 @@ function draw(ctx, canvas, datapoints) {
   // Draw x-axis and y-axis
   ctx.beginPath();
   ctx.lineWidth = 1;
+  // 0 is minimum range, 1 is maximum range (see ranges above)
   ctx.moveTo(xRange[0], yRange[1]);
   ctx.lineTo(xRange[0], yRange[0]);
   ctx.lineTo(xRange[1], yRange[0]);
   ctx.stroke();
   ctx.closePath();
 
-  // Draw y-values
-  ctx.fillText('0.0', 45, 200);
-  ctx.fillText(0.5, 45, 150);
-  ctx.fillText('1.0', 45, 100);
-  ctx.fillText(1.5, 45, 50);
-
   // Linear functions for x and y
   var xDomain = [datapoints[0].x, datapoints[14].x];
-  var yDomain = [0, 13]
+  var yDomain = [0, 15]
   var xLine = createTransform(xDomain, xRange);
   var yLine = createTransform(yDomain, yRange);
 
@@ -96,6 +95,11 @@ function draw(ctx, canvas, datapoints) {
     ctx.fillText(datapoints[i].x, xNew, yWrite)
   };
   ctx.stroke();
+
+  // Draw y-values
+  for (var i = yDomain[0]; i <= yDomain[1]; i += 5) {
+    ctx.fillText(i, 45, yRange[0] - 10 * i)
+  }
 
 }
 
