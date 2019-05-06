@@ -14,11 +14,8 @@ df = pd.read_csv(input, sep=';', usecols=['verkiezing', 'partij', 'stemmen'], en
 # For the purpose of assignment 4: preprocess data you for the assignment
 # Otherwise, skip this part
 df = df[df['verkiezing'] == 'GR2018']
-print(df)
 df = df.drop('verkiezing', 1)
-print(df)
 df = df.groupby(['partij']).sum()
-print(df)
 
 # Convert to JSON file
 # Fill in any filename you like, default orient is columns
