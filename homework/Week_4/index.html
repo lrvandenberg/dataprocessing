@@ -27,7 +27,7 @@
           dataset.push({'partij': (dataKeys[i]), 'stemmen': data[dataKeys[i]]['stemmen']});
         };
 
-        // Bind the dataset to html elements in the DOM
+        // Bind the dataset to html elements in the DOM (the p values, can be deleted later!)
         d3.select("body").selectAll("p")
           .data(dataset)
           .enter()
@@ -35,7 +35,7 @@
           .text(function(d) { return d.partij + ": " + d.stemmen })
           .style("font-size", "12px");
 
-        // Width, height and padding
+        // Determine width, height and padding
   			var svgW = 500; // range
   			var svgH = 500; // range
         var svgPadding = 50;
@@ -43,7 +43,6 @@
         var dataH = svgH - 3 * svgPadding
         var barPadding = 0.1
         var yMaxDomain = 14000 // maximum votes
-        var scaleH = yMaxDomain / dataH; // I thought this was easier then the D3 scale function: domain[0, 14000], range[50, 400]
 
         // Determine scales
         var yScale = d3.scaleLinear()
@@ -61,7 +60,15 @@
                     .attr("width", svgW)
                     .attr("height", svgH)
 
-        // Create a g element in which the bars will be written
+        // Create title
+        svg.append("text")
+            .attr("transform", "translate(" + svgPadding + ", 0)")
+            .attr("x", 30)
+            .attr("y", svgPadding)
+            .attr("font-size", "24px")
+            .text("Gemeenteraadsverkiezingen Leiden 2018");
+
+        // Create G element in which the bars will be written
         var g = svg.append("g")
                     .attr("transform", "translate(" + svgPadding + "," + (2 * svgPadding) + ")");
 
@@ -87,7 +94,7 @@
                 })
             .attr("fill", "green");
 
-        // Create and label axis
+        // Create axis
         var xAxis = d3.axisBottom(xScale);
         var yAxis = d3.axisLeft(yScale);
         g.append("g")
@@ -96,9 +103,8 @@
           .call(xAxis);
 
         g.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-
+            .attr("class", "y axis")
+            .call(yAxis);
 
         });
     </script>
