@@ -14,8 +14,8 @@
       d3.select("head").append("title").text("D3 Barchart");
       d3.select("body").append("h2").text("Resultaten Gemeenteraadsverkiezingen Leiden 2018");
       d3.select("body").append("h5").text("Lotte van den Berg, 12427241").style("color", "DimGrey").style("font-style", "italic");
-      d3.select("body").append("h4").text("De barchart laat zien hoe de Leidse kiezers hebben gestemd in 2018.").style("color", "DarkOliveGreen");
-      d3.select("body").append("h4").text("De data is afkomstig van data.overheid.nl").style("color", "DarkOliveGreen");
+      d3.select("body").append("h5").text("De barchart laat zien hoe de Leidse kiezers hebben gestemd in 2018.").style("color", "DarkOliveGreen");
+      d3.select("body").append("h5").text("De data is afkomstig van data.overheid.nl").style("color", "DarkOliveGreen");
 
       // Make sure json file is fully loaded with the then() function
       d3.json("GR_Leiden.json").then(function(data) {
@@ -27,13 +27,68 @@
           dataset.push({'partij': (dataKeys[i]), 'stemmen': data[dataKeys[i]]['stemmen']});
         };
 
-        // Bind the dataset to html elements
+        // Bind the dataset to html elements in the DOM
         d3.select("body").selectAll("p")
           .data(dataset)
           .enter()
           .append("p")
           .text(function(d) { return d.partij + ": " + d.stemmen })
           .style("font-size", "12px");
+
+        // Width, height and padding
+  			var svgW = 500; // range
+  			var svgH = 500; // range
+        var svgPadding = 50;
+        var dataW = svgW - svgPadding
+        var dataH = svgH - 3 * svgPadding
+        var barPadding = 0.1
+        var yMaxDomain = 14000 // maximum votes
+        var scaleH = yMaxDomain / dataH; // I thought this was easier then the D3 scale function: domain[0, 14000], range[50, 400]
+
+
+  			// Create SVG element
+  			var svg = d3.select("body")
+  						      .append("svg")
+                    .attr("width", svgW)
+                    .attr("height", svgH)
+
+        // Create a g element in which the bars will be written
+        var g = svg.append("g")
+                    .attr("transform", "translate(" + svgPadding + "," + (2 * svgPadding) + ")");
+
+        // Determine scales
+        var yScale = d3.scaleLinear()
+                        .domain([0, yMaxDomain])
+                        .range([0, dataH]);
+
+        var xScale = d3.scaleBand()
+                        .domain(dataKeys)
+                        .range([0, dataW])
+                        .padding(barPadding);
+
+        // Bind the dataset to html elements in the DOM
+        var bars = g.selectAll("rect")
+                    .data(dataset)
+                    .enter()
+                    .append("rect");
+
+        // Create bars
+        bars.attr("x", function(d) {
+              return xScale(d.partij);
+              })
+            .attr("y", function(d) {
+              return dataH - yScale(d.stemmen);
+            })
+            .attr("width", function(d){
+              return xScale.bandwidth();
+            })
+            .attr("height", function(d) {
+              return (yScale(d.stemmen));
+                })
+            .attr("fill", "green");
+
+
+
         });
     </script>
   </body>
