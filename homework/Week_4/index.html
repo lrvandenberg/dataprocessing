@@ -45,8 +45,17 @@
         var yMaxDomain = 14000 // maximum votes
         var scaleH = yMaxDomain / dataH; // I thought this was easier then the D3 scale function: domain[0, 14000], range[50, 400]
 
+        // Determine scales
+        var yScale = d3.scaleLinear()
+                        .domain([0, yMaxDomain])
+                        .range([dataH, 0]);
 
-  			// Create SVG element
+        var xScale = d3.scaleBand()
+                        .domain(dataKeys)
+                        .range([0, dataW])
+                        .padding(barPadding);
+
+        // Create SVG element
   			var svg = d3.select("body")
   						      .append("svg")
                     .attr("width", svgW)
@@ -56,15 +65,6 @@
         var g = svg.append("g")
                     .attr("transform", "translate(" + svgPadding + "," + (2 * svgPadding) + ")");
 
-        // Determine scales
-        var yScale = d3.scaleLinear()
-                        .domain([0, yMaxDomain])
-                        .range([0, dataH]);
-
-        var xScale = d3.scaleBand()
-                        .domain(dataKeys)
-                        .range([0, dataW])
-                        .padding(barPadding);
 
         // Bind the dataset to html elements in the DOM
         var bars = g.selectAll("rect")
@@ -76,17 +76,28 @@
         bars.attr("x", function(d) {
               return xScale(d.partij);
               })
-            .attr("y", function(d) {
-              return dataH - yScale(d.stemmen);
+            .attr("y", function(d){
+              return yScale(d.stemmen);
             })
             .attr("width", function(d){
               return xScale.bandwidth();
             })
             .attr("height", function(d) {
-              return (yScale(d.stemmen));
+              return (dataH - yScale(d.stemmen));
                 })
             .attr("fill", "green");
 
+        // Create and label axis
+        var xAxis = d3.axisBottom(xScale);
+        var yAxis = d3.axisLeft(yScale);
+        g.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + dataH + ")")
+          .call(xAxis);
+
+        g.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
 
 
         });
