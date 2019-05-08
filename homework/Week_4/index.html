@@ -40,13 +40,14 @@
       };
 
       // Draw the bar chart
-      draw(dataKeys, dataset, dataValues);
+      var drawnBars = draw(dataKeys, dataset, dataValues);
 
       // Tooltip
-      hover(d3.select("bars"));
+      hover(drawnBars);
 
       });
 
+    // Functions
     function draw(dataKeys, dataset, dataValues) {
 
       // Determine width, height and padding
@@ -136,9 +137,11 @@
               .style("font-size", "24px")
               .text("Gemeenteraadsverkiezingen Leiden 2018");
 
+      // Return bars for later use in hover function
+      return bars;
     };
 
-    function hover(element) {
+    function hover(drawnBars) {
       var tooltip = d3.select("body")
                       .append("div")
                       .attr("class", "hovering")
@@ -151,17 +154,17 @@
                       .style("padding", "5px")
                       .style("text-align", "center");
 
-      element.on("mouseover", function(d) {
-            d3.select(this).attr("fill", "greenyellow");
-            tooltip.style("left", d3.event.pageX - 50 + "px")
-                    .style("top", d3.event.pageY - 50 + "px")
-                    .style("display", "inline-block")
-                    .html((d.partij) + ": " + (d.stemmen));
-            })
-          .on("mouseout", function(d) {
-            d3.select(this).attr("fill", "green");
-            tooltip.style("display", "none");
-            });
+      drawnBars.on("mouseover", function(d) {
+                  d3.select(this).attr("fill", "greenyellow");
+                  tooltip.style("left", d3.event.pageX - 50 + "px")
+                          .style("top", d3.event.pageY - 50 + "px")
+                          .style("display", "inline-block")
+                          .html((d.partij) + ": " + (d.stemmen));
+                  })
+                .on("mouseout", function(d) {
+                  d3.select(this).attr("fill", "green");
+                  tooltip.style("display", "none");
+                  });
     };
     </script>
   </body>
