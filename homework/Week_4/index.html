@@ -36,10 +36,10 @@
           .style("font-size", "12px");
 
         // Determine width, height and padding
-  			var svgW = 500; // range
+  			var svgW = 550; // range
   			var svgH = 500; // range
         var svgPadding = 50;
-        var dataW = svgW - svgPadding
+        var dataW = svgW - 2*svgPadding
         var dataH = svgH - 3 * svgPadding
         var barPadding = 0.1
         var yMaxDomain = 14000 // maximum votes
@@ -60,17 +60,9 @@
                     .attr("width", svgW)
                     .attr("height", svgH)
 
-        // Create title
-        svg.append("text")
-            .attr("transform", "translate(" + svgPadding + ", 0)")
-            .attr("x", 30)
-            .attr("y", svgPadding)
-            .attr("font-size", "24px")
-            .text("Gemeenteraadsverkiezingen Leiden 2018");
-
         // Create G element in which the bars will be written
         var g = svg.append("g")
-                    .attr("transform", "translate(" + svgPadding + "," + (2 * svgPadding) + ")");
+                    .attr("transform", "translate(" + 2*svgPadding + "," + (2 * svgPadding) + ")");
 
 
         // Bind the dataset to html elements in the DOM
@@ -94,17 +86,44 @@
                 })
             .attr("fill", "green");
 
-        // Create axis
+        // Draw and label x axis
         var xAxis = d3.axisBottom(xScale);
-        var yAxis = d3.axisLeft(yScale);
         g.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + dataH + ")")
-          .call(xAxis);
+          .call(xAxis)
+        .append("text")
+          .attr("x", dataW)
+          .attr("y", svgPadding/3*2)
+          .style("text-anchor", "end")
+          .attr("fill", "currentColor")
+          .attr("font-size", "12px")
+          .text("Partijen");
 
+        // Draw and label y axis
+        var yAxis = d3.axisLeft(yScale);
         g.append("g")
             .attr("class", "y axis")
-            .call(yAxis);
+            .call(yAxis)
+          .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", 0)
+            .attr("y", - svgPadding)
+            .style("text-anchor", "end")
+            .attr("fill", "currentColor")
+            .attr("font-size", "12px")
+            .text("Stemmen");
+
+
+        // Draw title
+        g.append("text")
+          .attr("x", dataW/2)
+          .attr("y", - svgPadding)
+          .style("text-anchor", "middle")
+          .attr("font-size", "24px")
+          .text("Gemeenteraadsverkiezingen Leiden 2018");
+
+
 
         });
     </script>
