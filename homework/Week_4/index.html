@@ -31,7 +31,7 @@
     d3.json("GR_Leiden.json").then(function(data) {
 
       // Preprocess the data
-      var dataKeys = Object.keys(data);
+      var dataKeys = Object.keys(data)
       var dataset = []
       var dataValues = []
       for (var i = 0; i < dataKeys.length; i++) {
@@ -71,18 +71,18 @@
       // Create SVG element
       var svg = d3.select("body")
                   .append("svg")
-                  .attr("width", svgW)
-                  .attr("height", svgH);
+                    .attr("width", svgW)
+                    .attr("height", svgH);
 
       // Create G element in which the bars will be written
       var svgBar = svg.append("g")
-                  .attr("transform", "translate(" + 2*svgPadding + "," + (2 * svgPadding) + ")");
+                        .attr("transform", "translate(" + 2*svgPadding + "," + (2 * svgPadding) + ")");
 
       // Bind the dataset to html elements in the DOM
       var bars = svgBar.selectAll("rect")
-                  .data(dataset)
-                  .enter()
-                  .append("rect");
+                        .data(dataset)
+                        .enter()
+                        .append("rect");
 
       // Create bars
       var bars = bars.attr("x", function(d) {
@@ -97,46 +97,46 @@
                       .attr("height", function(d) {
                         return (dataH - yScale(d.stemmen));
                         })
-                      .attr("fill", "green")
+                      .attr("fill", "green");
 
       // Draw and label x axis
       var xAxis = d3.axisBottom(xScale);
       svgBar.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + dataH + ")")
-        .call(xAxis)
-      .append("text")
-        .attr("x", dataW)
-        .attr("y", svgPadding/3*2)
-        .style("text-anchor", "end")
-        .attr("fill", "currentColor")
-        .style("font-size", "12px")
-        .text("Partijen");
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + dataH + ")")
+              .call(xAxis)
+            .append("text")
+              .attr("x", dataW)
+              .attr("y", svgPadding/3*2)
+              .style("text-anchor", "end")
+              .attr("fill", "currentColor")
+              .style("font-size", "12px")
+              .text("Partijen");
 
       // Draw and label y axis
       var yAxis = d3.axisLeft(yScale);
       svgBar.append("g")
-          .attr("class", "y axis")
-          .call(yAxis)
-        .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("x", 0)
-          .attr("y", - svgPadding)
-          .style("text-anchor", "end")
-          .attr("fill", "currentColor")
-          .style("font-size", "12px")
-          .text("Stemmen");
+              .attr("class", "y axis")
+              .call(yAxis)
+            .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("x", 0)
+              .attr("y", - svgPadding)
+              .style("text-anchor", "end")
+              .attr("fill", "currentColor")
+              .style("font-size", "12px")
+              .text("Stemmen");
 
       // Draw title
       svgBar.append("text")
-        .attr("class", "title")
-        .attr("x", dataW/2)
-        .attr("y", - svgPadding)
-        .style("text-anchor", "middle")
-        .style("font-size", "24px")
-        .text("Gemeenteraadsverkiezingen Leiden 2018");
+              .attr("class", "title")
+              .attr("x", dataW/2)
+              .attr("y", - svgPadding)
+              .style("text-anchor", "middle")
+              .style("font-size", "24px")
+              .text("Gemeenteraadsverkiezingen Leiden 2018");
 
-    }
+    };
 
     function hover(element) {
       var tooltip = d3.select("body")
@@ -154,9 +154,9 @@
       element.on("mouseover", function(d) {
             d3.select(this).attr("fill", "greenyellow");
             tooltip.style("left", d3.event.pageX - 50 + "px")
-                .style("top", d3.event.pageY - 50 + "px")
-                .style("display", "inline-block")
-                .html((d.partij) + ": " + (d.stemmen));
+                    .style("top", d3.event.pageY - 50 + "px")
+                    .style("display", "inline-block")
+                    .html((d.partij) + ": " + (d.stemmen));
             })
           .on("mouseout", function(d) {
             d3.select(this).attr("fill", "green");
