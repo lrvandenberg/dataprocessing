@@ -9,7 +9,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <script type="text/javascript" src="/d3/d3.v5.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v5.js"></script>
   </head>
   <body>
     <script type="text/javascript">
@@ -27,6 +27,14 @@
                         .text("Onderstaande barchart laat zien hoe de Leidse kiezers hebben gestemd in 2018. De data is afkomstig van data.overheid.nl")
                         .style("color", "DarkOliveGreen");
 
+      // Create SVG element
+      var svgW = 550 // range
+      var svgH = 500 // range
+      var svg = d3.select("body")
+                  .append("svg")
+                  .attr("width", svgW)
+                  .attr("height", svgH);
+
       // Make sure json file is fully loaded
       d3.json("GR_Leiden.json").then(function(data) {
 
@@ -40,8 +48,6 @@
         };
 
         // Determine width, height and padding
-  			var svgW = 550 // range
-  			var svgH = 500 // range
         var svgPadding = 50;
         var dataW = svgW - 2 * svgPadding // extra space for axis labels
         var dataH = svgH - 3 * svgPadding // extra space for title and axis labels
@@ -58,14 +64,9 @@
                         .range([0, dataW])
                         .padding(barPadding);
 
-        // Create SVG element
-  			var svg = d3.select("body")
-  						      .append("svg")
-                    .attr("width", svgW)
-                    .attr("height", svgH);
 
         // Create G element in which the bars will be written
-        var svgBar = svg.append("g")
+        var svgBar = d3.select("svg").append("g")
                     .attr("transform", "translate(" + 2*svgPadding + "," + (2 * svgPadding) + ")");
 
         // Bind the dataset to html elements in the DOM
@@ -127,6 +128,11 @@
           .text("Gemeenteraadsverkiezingen Leiden 2018");
 
         // Tooltip
+        hover(bars);
+
+        });
+
+      function hover(element) {
         var tooltip = d3.select("body")
                         .append("div")
                         .attr("class", "hovering")
@@ -139,7 +145,7 @@
                         .style("padding", "5px")
                         .style("text-align", "center");
 
-        bars.on("mouseover", function(d) {
+        element.on("mouseover", function(d) {
               d3.select(this).attr("fill", "greenyellow");
               tooltip.style("left", d3.event.pageX - 50 + "px")
                   .style("top", d3.event.pageY - 50 + "px")
@@ -150,8 +156,7 @@
               d3.select(this).attr("fill", "green");
               tooltip.style("display", "none");
               });
-
-        });
+      }
     </script>
   </body>
 </html>
