@@ -27,24 +27,26 @@
                         .text("Onderstaande barchart laat zien hoe de Leidse kiezers hebben gestemd in 2018. De data is afkomstig van data.overheid.nl")
                         .style("color", "DarkOliveGreen");
 
-      // Make sure json file is fully loaded with the then() function
+      // Make sure json file is fully loaded
       d3.json("GR_Leiden.json").then(function(data) {
 
         // Preprocess the data
         var dataKeys = Object.keys(data);
-        var dataset = [];
+        var dataset = []
+        var dataValues = []
         for (var i = 0; i < dataKeys.length; i++) {
           dataset.push({'partij': (dataKeys[i]), 'stemmen': data[dataKeys[i]]['stemmen']});
+          dataValues.push(data[dataKeys[i]]['stemmen']);
         };
 
         // Determine width, height and padding
-  			var svgW = 550; // range
-  			var svgH = 500; // range
+  			var svgW = 550 // range
+  			var svgH = 500 // range
         var svgPadding = 50;
         var dataW = svgW - 2 * svgPadding // extra space for axis labels
         var dataH = svgH - 3 * svgPadding // extra space for title and axis labels
         var barPadding = 0.1
-        var yMaxDomain = 14000 // maximum votes
+        var yMaxDomain = d3.max(dataValues);
 
         // Determine scales
         var yScale = d3.scaleLinear()
@@ -60,7 +62,7 @@
   			var svg = d3.select("body")
   						      .append("svg")
                     .attr("width", svgW)
-                    .attr("height", svgH)
+                    .attr("height", svgH);
 
         // Create G element in which the bars will be written
         var svgBar = svg.append("g")
@@ -148,7 +150,6 @@
               d3.select(this).attr("fill", "green");
               tooltip.style("display", "none");
               });
-
 
         });
     </script>
