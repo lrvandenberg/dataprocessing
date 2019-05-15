@@ -2,45 +2,50 @@
 Name: Lotte van den Berg
 Student number: 12427241
 This file provides the JavaScript code to compute a scatterplot
-of the[......].
+of the relationship between teen pregnancies, crime and GDP in Europe.
 */
 
-// Use of API was not required due to unlucky format
-var teensInViolentArea = "teensInViolentArea.json"
-var teenPregnancies = "teenPregnancies.json"
-var GDP = "GDP.json"
+window.onload = function(){
 
-// Store json files in an array
-var requests = [d3.json(teensInViolentArea), d3.json(teenPregnancies), d3.json(GDP)];
+  // Use of API was not required due to 'unlucky' format, therefore they are locally saved
+  var teensInViolentArea = "teensInViolentArea.json"
+  var teenPregnancies = "teenPregnancies.json"
+  var GDP = "GDP.json"
 
-// Make sure all files are loaded
-Promise.all(requests).then(function(response) {
+  // Load in json files
+  var requests = [d3.json(teensInViolentArea), d3.json(teenPregnancies), d3.json(GDP)];
 
-    // Preprocess the data
-    var data = preprocess(response)
-    console.log(data.option1)
+  // Make sure all files are loaded
+  Promise.all(requests).then(function(response) {
 
+      // Preprocess the data
+      var data = preprocess(response);
 
-    // Draw the scatterplot when radio button 2012 is checked
-    document.getElementById("2012").onclick = function() {
-      d3.selectAll('svg').remove()
-      draw(data.option1, '2012')}
+      // Draw scatterplot when radio button 2012 is checked
+      document.getElementById("2012").onclick = function() {
 
-    // Draw the scatterplot when radio button 2014 is checked
-    document.getElementById("2014").onclick = function() {
-      d3.selectAll('svg').remove()
-      draw(data.option2, '2014')
-    }
+        // remove existing graphs, if any
+        d3.selectAll('svg').remove();
 
+        draw(data.option1, '2012')};
 
-}).catch(function(e){
-    throw(e);
-});
+      // Draw scatterplot when radio button 2014 is checked
+      document.getElementById("2014").onclick = function() {
+
+        // remove existing graphs, if any
+        d3.selectAll('svg').remove();
+
+        draw(data.option2, '2014')};
+  })
+
+  // Handle errors
+  .catch(function(e){throw(e)});
+};
 
 // Functions
 function preprocess(data) {
 
-  // Select all 2014 and 2016 values in the dataset
+  // Step 1: Select all 2012 and 2014 values in the dataset
   var subset = []
   data.forEach(function(set){
 
@@ -54,29 +59,29 @@ function preprocess(data) {
       var allyears = {}
       set[key].forEach(function (element) {
         allyears[element.Time | element.Year] =  element.Datapoint
-        })
+      });
       var twoyears = {}
       twoyears[2012] = allyears[2012]
       twoyears[2014] = allyears[2014]
 
-      // Add key value pair
+      // Add country and corresponding years to JSON object
       cleaned[country] = twoyears
-      })
+    });
 
-    // Add all key value pairs to an array
-    subset.push(cleaned)
-  })
+    // Store all JSON objects in an array
+    subset.push(cleaned);
+  });
 
-  // Give the subsets more descriptive names
+  // Step 2: Give the subsets more descriptive names
   var xCoordinates = subset[0]
   var yCoordinates = subset[1]
   var color = subset[2]
 
-  // Create a list with datapoints for each option
+  // Step 3: Create arrays with datapoints for each option
   option1 = []
   option2 = []
 
-  // Use the same countries for an even amount of datapoints
+  // Step 3 continued: Use the same countries for an even amount of datapoints
   for (key in color) {
     if (key in xCoordinates & key in yCoordinates){
         datapointsOption1 = {}
@@ -96,17 +101,17 @@ function preprocess(data) {
 
         option1.push(datapointsOption1)
         option2.push(datapointsOption2)
+      };
+    };
 
-      }
-    }
-
-  // Append both options to 1 final object
+  // Step 4: Append both options to 1 final object
   var data = {}
   data['option1'] = option1
   data['option2'] = option2
 
-  return data
-}
+  // Return preprocessed data
+  return data;
+};
 
 function draw(data, year){
 
@@ -114,31 +119,34 @@ function draw(data, year){
   var svgW = 700 // range
   var svgH = 500 // range
   var svgPadding = 50
-  var marginLeft = 2 * svgPadding
-  var marginRight = 3 * svgPadding
-  var marginTop = 2 * svgPadding
-  var marginBottom = svgPadding
-  var dataW = svgW - marginLeft - marginRight // extra space for axis labels
-  var dataH = svgH - marginTop - marginBottom // extra space for title and axis labels
+  var marginLeft = 2 * svgPadding // extra space for y axis
+  var marginRight = 3 * svgPadding // extra space for legend
+  var marginTop = 2 * svgPadding // extra space for title
+  var marginBottom = svgPadding // extra space for x axis
+  var dataW = svgW - marginLeft - marginRight
+  var dataH = svgH - marginTop - marginBottom
+  var circleR = 4;
+
+  // Determine colors: pre-made color combination from Color Brewers
+  var colors = [{color:"#99d8c9", label:"Low GDP"}, {color:"#41ae76", label:"Average GDP"}, {color:"#005824", label:"High GDP"}];
 
   // Determine domains
   var dataValuesY = []
   var dataValuesX = []
   var dataValuesColor = []
+
   data.forEach(function (element) {
     dataValuesY.push(element.y)
     dataValuesX.push(element.x)
     dataValuesColor.push(element.color)
-  })
+  });
+
   var yMaxDomain = d3.max(dataValuesY)
   var xMaxDomain = d3.max(dataValuesX)
   var colorMaxDomain = d3.max(dataValuesColor)
   var colorMinDomain = d3.min(dataValuesColor)
-  var colorHigh = colorMinDomain + (colorMaxDomain - colorMinDomain) / 3 * 2
-  var colorLow = colorMinDomain + (colorMaxDomain - colorMinDomain) / 3
-  var colors = [{color:"#99d8c9", label:"Low GDP"}, {color:"#41ae76", label:"Average GDP"}, {color:"#005824", label:"High GDP"}]
-
-  console.log(colors)
+  var colorLow = colorMinDomain + (colorMaxDomain - colorMinDomain) / colors.length
+  var colorHigh = colorMinDomain + (colorMaxDomain - colorMinDomain) / colors.length * 2;
 
   // Determine scales
   var yScale = d3.scaleLinear()
@@ -157,7 +165,7 @@ function draw(data, year){
 
   // Create G element in which the plot will be drawn
   var svgPlot = svg.append("g")
-                  .attr("transform", "translate(" + marginLeft + "," + marginTop + ")");
+                    .attr("transform", "translate(" + marginLeft + "," + marginTop + ")");
 
   // Bind the data to html elements in the DOM
   var datapoints = svgPlot.selectAll("circle")
@@ -172,21 +180,18 @@ function draw(data, year){
                         .attr("cy", function(d){
                           return yScale(d.y);
                           })
-                        .attr("r", 4)
+                        .attr("r", circleR)
                         .attr("fill", function(d){
                           if (d.color < colorLow) {
-                            return colors[0].color
+                            return colors[0].color;
                           }
                           else if (d.color > colorHigh) {
-                            return colors[2].color
+                            return colors[2].color;
                           }
                           else {
-                            return colors[1].color
+                            return colors[1].color;
                           }
                         });
-
-  console.log(xMaxDomain) // print statements for testing
-  console.log(yMaxDomain)
 
   // Draw and label x axis
   var xAxis = d3.axisBottom(xScale);
@@ -200,7 +205,7 @@ function draw(data, year){
           .style("text-anchor", "end")
           .attr("fill", "currentColor")
           .style("font-size", "12px")
-          .text("Teens in Violent Areas");
+          .text("% Children (0-17) living in areas with problems with crime or violence");
 
   // Draw and label y axis
   var yAxis = d3.axisLeft(yScale);
@@ -210,21 +215,22 @@ function draw(data, year){
         .append("text")
           .attr("transform", "rotate(-90)")
           .attr("x", 0)
-          .attr("y", - marginBottom/2)
+          .attr("y", - marginLeft/3)
           .style("text-anchor", "end")
           .attr("fill", "currentColor")
           .style("font-size", "12px")
-          .text("Teen Pregnancies");
+          .text("Births per 1000 women aged 15-19");
 
-  // Draw legend
+  // Determine legend variables
   var legendHeight = 50
   var legendWidth = 100
   var legendPadding = 10
-  var circleR = 5
-  // Create G-element
+  var legendCircleR = 5
+
   var legend = svgPlot.append("g")
-                        .attr("class","legend")
-                        .attr("transform","translate(" + (dataW + legendPadding) + ", 0)")
+                       .attr("class","legend")
+                       .attr("transform","translate(" + (dataW + legendPadding) + ", 0)");
+
   // Draw legend border
   legend.append("rect")
         .attr("x", -legendPadding)
@@ -233,47 +239,46 @@ function draw(data, year){
         .attr("width", legendWidth + legendPadding)
         .style("stroke", "black")
         .style("stroke-width", 1)
-        .style("fill", "None")
+        .style("fill", "None");
 
   // Draw legend dots
-  legend.selectAll("legendDots")
+  legend.selectAll("dots")
           .data(colors)
           .enter()
           .append("circle")
             .attr("cx", 0)
             .attr("cy", function(d,i){
-              return legendHeight/3 * i
-            })
-            .attr("r", circleR)
+              return legendHeight/colors.length * i;
+              })
+            .attr("r", legendCircleR)
             .style("fill", function(d){
-              return d.color
-            })
+              return d.color;
+              });
 
   // Draw legend labels
-  legend.selectAll("legendLabels")
+  legend.selectAll("labels")
         .data(colors)
         .enter()
-          .append("text")
-            .attr("x", legendWidth/6)
-            .attr("y", function(d,i){
-              return circleR + legendHeight/3 * i
+        .append("text")
+          .attr("x", legendWidth/6)
+          .attr("y", function(d,i){
+            return legendCircleR + legendHeight/colors.length * i;
             })
-            .style("fill", function(d){
-              return d.color
+          .style("fill", function(d){
+            return d.color;
             })
-            .text(function(d){
-               return d.label
-             })
-            .style("font-size", "12px")
-            .style("text-align", "bottom")
+          .text(function(d){
+            return d.label;
+            })
+          .style("font-size", "12px")
+          .style("text-align", "bottom");
 
     // Draw title
     svgPlot.append("text")
             .attr("class", "title")
-            .attr("x", (dataW + marginRight/2)/2)
+            .attr("x", dataW/2)
             .attr("y", - marginBottom)
             .style("text-anchor", "middle")
-            .style("font-size", "17px")
-            .text("Relationship between teen pregnancies and violence in Europe in " + year);
-
-}
+            .style("font-size", "24px")
+            .text("Measurements in Europe in " + year);
+};
