@@ -6,20 +6,20 @@ Tooltip code sampled from (with adjustions): https://bl.ocks.org/alandunning/274
 Transition pie chart sampled from (with adjustions): https://www.d3-graph-gallery.com/graph/pie_changeData.html
 */
 
-window.onload = function(){
+// Add tooltip container for bar chart and pie chart
+d3.select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("display", "none")
+  .style("min-width", "50px")
+  .style("height", "20px")
+  .style("background", "white")
+  .style("border", "1px solid green")
+  .style("padding", "5px")
+  .style("text-align", "center");
 
-  // Add tooltip container for bar chart and pie chart
-  d3.select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("display", "none")
-    .style("min-width", "50px")
-    .style("height", "20px")
-    .style("background", "white")
-    .style("border", "1px solid green")
-    .style("padding", "5px")
-    .style("text-align", "center");
+window.onload = function() {
 
   // Load in json files
   var requests = [d3.json("GR_LeidenStemmen.json"), d3.json("GR_LeidenWijken.json")];
@@ -29,64 +29,66 @@ window.onload = function(){
 
     // Preprocess the data
     var preprocessed = preprocess(response[0], response[1].data);
-    var stemmen = preprocessed[0]
-    var wijken = preprocessed[1]
+    var votes = preprocessed[0];
+    var districts = preprocessed[1];
 
-    // Draw barchart of 'stemmen', returns the bars
-    var bars = draw_barchart(stemmen);
+    // Draw barchart of votes, returns the bar elements
+    var drawnBars = draw_barchart(votes);
 
-    // Draw piechart frame, returns radius and colorScale
-    var pie_info = draw_piechart_frame(wijken['CDA'])
+    // Draw piechart frame of districts, returns radius and colorScale
+    var pieInfo = draw_piechart_frame(districts['CDA']); // use CDA as a random starter (could have been any other party)
 
     // Initialize piechart with first update
-    var firstTime = true;
-    update_piechart(wijken['CDA'], pie_info, stemmen[0].partij, stemmen[0].stemmen, firstTime)
+    var firstUpdate = true;
+    update_piechart(districts['CDA'], pieInfo, votes[0].partij, votes[0].stemmen, firstUpdate);
 
     // When clicked on a bar, update piechart
-    bars.on("click", function(d){
-      update_piechart(wijken[d.partij], pie_info, d.partij, d.stemmen, firstTime=false)
-    });
+    drawnBars.on("click", function(d){
+      update_piechart(districts[d.partij], pieInfo, d.partij, d.stemmen, firstUpdate=false)});
 
-
-  })
+    })
 
   // Handle errors
   .catch(function(e){throw(e)});
+
 };
 
 
-function preprocess(dataStemmen, dataWijken) {
+function preprocess(dataVotes, dataDistricts) {
 
-  // Preprocess dataStemmen
-  var cleanedStemmen = []
-  for (key in dataStemmen) {
-    cleanedStemmen.push({'partij': key, 'stemmen': dataStemmen[key].stemmen});
-  }
+  // Preprocess dataVotes
+  var cleanedVotes = []
+  for (key in dataVotes) {
+    cleanedVotes.push({'partij': key, 'stemmen': dataVotes[key].stemmen})};
 
-  // Preprocess dataWijken
-  var cleanedWijken = {}
-  for (key in dataStemmen) {
+  // Preprocess dataDistricts
+  var cleanedDistricts = {}
+  for (key in dataVotes) {
+
     var wijken = []
-    dataWijken.forEach(function (element) {
+    dataDistricts.forEach(function (element) {
+
       if (element.partij == key) {
         var wijk = {}
         wijk['wijk'] = element.w
         wijk['stemmen'] = element.stemmen
         wijken.push(wijk)
-        }
-      })
-    cleanedWijken[key] = wijken
-  }
+      };
 
-  return [cleanedStemmen, cleanedWijken]
+    });
+
+    cleanedDistricts[key] = wijken
+  };
+
+  return [cleanedVotes, cleanedDistricts]
 };
 
 
 function draw_barchart(data) {
 
   // Determine width, height and padding
-  var svgW = 550 // range
-  var svgH = 500 // range
+  var svgW = 550
+  var svgH = 500
   var margin = {left:100, right: 0, top:100, bottom:50}
   var dataW = svgW - margin.left - margin.right// extra space for axis labels
   var dataH = svgH - margin.top - margin.bottom // extra space for title and axis labels
@@ -98,7 +100,7 @@ function draw_barchart(data) {
   data.forEach(function (element) {
     dataKeys.push(element.partij)
     dataValues.push(element.stemmen)
-  })
+  });
   var yMaxDomain = d3.max(dataValues);
 
   // Determine scales
@@ -166,17 +168,13 @@ function draw_barchart(data) {
 
   // Create bars
   var bars = bars.attr("x", function(d) {
-                    return xScale(d.partij);
-                    })
-                  .attr("y", function(d){
-                    return yScale(d.stemmen);
-                    })
-                  .attr("width", function(d){
-                    return xScale.bandwidth();
-                    })
+                    return xScale(d.partij);})
+                  .attr("y", function(d) {
+                    return yScale(d.stemmen);})
+                  .attr("width", function(d) {
+                    return xScale.bandwidth();})
                   .attr("height", function(d) {
-                    return (dataH - yScale(d.stemmen));
-                    })
+                    return (dataH - yScale(d.stemmen));})
                   .attr("fill", "green")
 
   // Tooltip
@@ -189,7 +187,7 @@ function draw_barchart(data) {
                     })
                   .on("mouseout", function() {
                     d3.select(this).attr("fill", "green");
-                    d3.selectAll(".tooltip").style("display", "none")
+                    d3.selectAll(".tooltip").style("display", "none");
                     })
 
   // Return bars for later use in piechart function
@@ -200,11 +198,11 @@ function draw_barchart(data) {
 function draw_piechart_frame(data) {
 
   // Determine width, height and padding
-  var svgW = 750 // range
-  var svgH = 500 // range
-  var margin = {left:100, right: 200, top:100, bottom:0}
-  var dataW = svgW - margin.left - margin.right// extra space for legend
-  var dataH = svgH - margin.top - margin.bottom // extra space for title
+  var svgW = 750
+  var svgH = 500
+  var margin = {left:100, right: 200, top:100, bottom:0} // extra space for legend and title
+  var dataW = svgW - margin.left - margin.right
+  var dataH = svgH - margin.top - margin.bottom
   var radius = Math.min(dataW, dataH) / 2;
 
   // Create SVG element
@@ -218,24 +216,23 @@ function draw_piechart_frame(data) {
                     .attr("class", "svgPie")
                     .attr("transform", "translate(" + (margin.left + dataW/2) + "," + (margin.top + dataH/2) + ")");
 
-  // Draw title
+  // Draw title frame (actual text will be updated)
   svg.append("text")
         .attr("class", "titlePie")
         .attr("x", margin.left + dataW/2)
         .attr("y", margin.top/2)
         .style("text-anchor", "middle")
-        .style("font-size", "24px")
+        .style("font-size", "24px");
 
   // Determine keys for color scale
   var dataKeys = []
   data.forEach(function (element) {
-      dataKeys.push(element.wijk)
-    })
+      dataKeys.push(element.wijk)});
 
   // Determine color scale
   var colorScale = d3.scaleOrdinal()
                       .domain(dataKeys)
-                      .range(d3.schemePaired)
+                      .range(d3.schemePaired);
 
   // Determine legend variables
   var legendHeight = 200
@@ -254,16 +251,14 @@ function draw_piechart_frame(data) {
         .enter()
         .append("circle")
           .attr("cx", 0)
-          .attr("cy", function(d,i){
-            return legendHeight/data.length * i;
-              })
+          .attr("cy", function(d, i) {
+            return legendHeight/data.length * i;})
           .attr("r", legendCircleR)
-          .style("fill", function(d){
-            return colorScale(d.wijk);
-            });
+          .style("fill", function(d) {
+            return colorScale(d.wijk);});
 
-  // Wijknamen afkomstig van de toelichting op de dataset (data.overheid.nl)
-  var wijkNamen = {0:"Binnenstad-Zuid", 1:"Binnenstad-Noord", 2:"Stationsdistrict", 3:"Leiden-Noord", 4:"Roodenburg", 5:"Bos- en Gasthuis", 6:"de Mors", 7:"Boerhaave", 8:"Merenwijk", 9:"Stevenshof", 99:"Overig"}
+  // District names derived from official clarification of the dataset (data.overheid.nl)
+  var districtNames = {0:"Binnenstad-Zuid", 1:"Binnenstad-Noord", 2:"Stationsdistrict", 3:"Leiden-Noord", 4:"Roodenburg", 5:"Bos- en Gasthuis", 6:"de Mors", 7:"Boerhaave", 8:"Merenwijk", 9:"Stevenshof", 99:"Overig"}
 
   // Draw legend labels
   legend.selectAll("labels")
@@ -271,13 +266,11 @@ function draw_piechart_frame(data) {
         .enter()
         .append("text")
           .attr("x", legendPadding)
-          .attr("y", function(d,i){
-              return legendCircleR + legendHeight/data.length * i;
-              })
+          .attr("y", function(d, i) {
+              return legendCircleR + legendHeight/data.length * i;})
           .style("fill", "black")
-          .text(function(d){
-              return wijkNamen[d.wijk];
-              })
+          .text(function(d) {
+              return districtNames[d.wijk];})
           .style("font-size", "12px")
           .style("text-align", "bottom");
 
@@ -286,67 +279,72 @@ function draw_piechart_frame(data) {
 };
 
 
-function update_piechart(data, pie_info, naamPartij, stemmenTotaal, firstTime) {
+function update_piechart(data, pieInfo, partijNaam, stemmenTotaal, firstUpdate) {
 
-  var radius = pie_info[0]
-  var colorScale = pie_info[1]
+  var radius = pieInfo[0]
+  var colorScale = pieInfo[1]
 
-  // Uodate title
+  // Update title
   d3.selectAll(".titlePie")
-      .text("Verdeling stemmen over de wijken: " + naamPartij);
+      .text("Verdeling stemmen over wijken: " + partijNaam + " (" + stemmenTotaal + ")");
 
-  // Draw piechart
+  // Function for determining size of the pies
   var pie = d3.pie()
               .value(function(d) {
-                return d.stemmen})
+                return d.stemmen })
               .sort(null);
 
-
-  var original = d3.selectAll(".svgPie")
+  // Bind data to the pie elements
+  var pieParts = d3.selectAll(".svgPie")
                 .selectAll("path")
-                .data(pie(data))
+                .data(pie(data));
 
-  var path = original.enter()
-                      .append('path')
+  // Append path elements
+  var path = pieParts.enter()
+                      .append('path');
 
-  var pieParts = path
-                .merge(original)
+  // Visualize (and update) pieparts
+  var pathDrawn = path
+                .merge(pieParts)
                 .transition()
                 .duration(1000)
                 .attr('d', d3.arc()
-                   .innerRadius(0)
-                   .outerRadius(radius))
+                              .innerRadius(0)
+                              .outerRadius(radius))
                 .attr('fill', function(d) {
-                  return colorScale(d.data.wijk) })
+                  return colorScale(d.data.wijk);})
                 .attr("stroke", "white")
                 .style("stroke-width", "2px")
-                .style("opacity", 1)
+                .style("opacity", 1);
 
  // Remove parts that don't exist
- original.exit()
-          .remove()
+ path.exit()
+      .remove();
 
   // Tooltip
-  if (firstTime) {
-    path.on("mouseover", function(d){
-              d3.selectAll(".tooltip").style("left", d3.event.pageX - 40 + "px")
-                                .style("top", d3.event.pageY - 40 + "px")
-                                .style("display", "inline-block")
-                                .html("Stemmen: " + d.data.stemmen + " (" + Math.round(d.data.stemmen * 100/stemmenTotaal) + "%)");
-              })
+  if (firstUpdate) {
+
+    path.on("mouseover", function(d) {
+              d3.selectAll(".tooltip")
+                  .style("left", d3.event.pageX - 40 + "px")
+                  .style("top", d3.event.pageY - 40 + "px")
+                  .style("display", "inline-block")
+                  .html("Stemmen: " + d.data.stemmen + " (" + Math.round(d.data.stemmen * 100/stemmenTotaal) + "%)");})
           .on("mouseout", function() {
-              d3.selectAll(".tooltip").style("display", "none")
-              })
+              d3.selectAll(".tooltip").style("display", "none");})
+
   }
   else {
-    original.on("mouseover", function(d){
-              d3.selectAll(".tooltip").style("left", d3.event.pageX - 40 + "px")
-                                .style("top", d3.event.pageY - 40 + "px")
-                                .style("display", "inline-block")
-                                .html("Stemmen: " + d.data.stemmen + " (" + Math.round(d.data.stemmen * 100/stemmenTotaal) + "%)");
-              })
-          .on("mouseout", function() {
-              d3.selectAll(".tooltip").style("display", "none")
-              })
+
+    pieParts.on("mouseover", function(d)  {
+                d3.selectAll(".tooltip")
+                    .style("left", d3.event.pageX - 40 + "px")
+                    .style("top", d3.event.pageY - 40 + "px")
+                    .style("display", "inline-block")
+                    .html("Stemmen: " + d.data.stemmen + " (" + Math.round(d.data.stemmen * 100/stemmenTotaal) + "%)");})
+              .on("mouseout", function() {
+                d3.selectAll(".tooltip").style("display", "none")})
+
   }
+
 };
