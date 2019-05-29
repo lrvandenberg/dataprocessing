@@ -9,14 +9,15 @@ Transition pie chart sampled from (with adjustions): https://www.d3-graph-galler
 // Add tooltip container for bar chart and pie chart
 d3.select("body")
   .append("div")
-  .attr("class", "tooltip")
+  .attr("class", "tool")
   .style("position", "absolute")
   .style("display", "none")
   .style("min-width", "50px")
-  .style("height", "20px")
+  .style("height", "30px")
   .style("background", "white")
   .style("border", "1px solid green")
   .style("padding", "5px")
+  .style("font-size", "12px")
   .style("text-align", "center");
 
   // Full party names derived from Wikipedia and gemeenteraad.leiden.nl
@@ -183,14 +184,14 @@ function draw_barchart(data) {
   // Tooltip
   var bars = bars.on("mouseover", function(d) {
                     d3.select(this).attr("fill", "greenyellow");
-                    d3.selectAll(".tooltip").style("left", d3.event.pageX - 50 + "px")
+                    d3.selectAll(".tool").style("left", d3.event.pageX - 50 + "px")
                                             .style("top", d3.event.pageY - 50 + "px")
                                             .style("display", "inline-block")
                                             .html((partijenVolledig[d.partij]) + ": " + (d.stemmen));
                     })
                   .on("mouseout", function() {
                     d3.select(this).attr("fill", "green");
-                    d3.selectAll(".tooltip").style("display", "none");
+                    d3.selectAll(".tool").style("display", "none");
                     })
 
   // Return bars for later use in piechart function
@@ -328,25 +329,25 @@ function update_piechart(data, pieInfo, partijNaam, stemmenTotaal, firstUpdate) 
   if (firstUpdate) {
 
     path.on("mouseover", function(d) {
-              d3.selectAll(".tooltip")
+              d3.selectAll(".tool")
                   .style("left", d3.event.pageX - 40 + "px")
                   .style("top", d3.event.pageY - 40 + "px")
                   .style("display", "inline-block")
                   .html("Stemmen: " + d.data.stemmen + " (" + Math.round(d.data.stemmen * 100/stemmenTotaal) + "%)");})
           .on("mouseout", function() {
-              d3.selectAll(".tooltip").style("display", "none");})
+              d3.selectAll(".tool").style("display", "none");})
 
   }
   else {
 
     pieParts.on("mouseover", function(d)  {
-                d3.selectAll(".tooltip")
+                d3.selectAll(".tool")
                     .style("left", d3.event.pageX - 40 + "px")
                     .style("top", d3.event.pageY - 40 + "px")
                     .style("display", "inline-block")
                     .html("Stemmen: " + d.data.stemmen + " (" + Math.round(d.data.stemmen * 100/stemmenTotaal) + "%)");})
               .on("mouseout", function() {
-                d3.selectAll(".tooltip").style("display", "none")})
+                d3.selectAll(".tool").style("display", "none")})
 
   }
 
