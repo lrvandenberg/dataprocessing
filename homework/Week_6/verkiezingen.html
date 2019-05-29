@@ -8,13 +8,29 @@
 <html>
   <head>
     <title>Assignment Week 6</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
-    <h2>Assignment Week 6: Linked Views</h2>
-    <h5 style="color: #556B2F; font-style: italic;">Lotte van den Berg, 12427241</h5>
-    <p style="color: #556B2F;">Onderstaande barchart en piechart laten (interactief) zien hoe de Leidse kiezers hebben gestemd in 2018. De data is afkomstig van data.overheid.nl.</p>
-    <div id="barchart_area"></div>
-    <div id="piechart_area"></div>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <a class="navbar-brand mb-1 h1" href="/">Homepage</a>
+        <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" type="button" data-target="#navbarNav" data-toggle="collapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="https://data.overheid.nl/dataset/leiden---uitslagen-alle-verkiezingen-vanaf-2002">Data Source</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="container-fluid p-5">
+      <h3>Assignment Week 6: Linked Views</h3>
+      <footer style="color: #556B2F; font-style: italic;">Lotte van den Berg, 12427241</footer>
+      <p style="color: #556B2F;">Onderstaande barchart en piechart laten (interactief) zien hoe de Leidse kiezers hebben gestemd in 2018. Navigeer naar 'Data Source' voor originele data.</p>
+      <div id="barchart_area"></div>
+      <div id="piechart_area"></div>
+    </main>
     <script type="text/javascript" src="https://d3js.org/d3.v5.js"></script>
     <script src="verkiezingen.js"></script>
   </body>
