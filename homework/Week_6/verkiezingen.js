@@ -19,6 +19,9 @@ d3.select("body")
   .style("padding", "5px")
   .style("text-align", "center");
 
+  // Full party names derived from Wikipedia and gemeenteraad.leiden.nl
+  const partijenVolledig = {'CDA': 'Christen-Democratisch Appel', 'ChrU': 'ChristenUnie', 'D66': 'Democraten 66', 'GrLi': 'GroenLinks', 'PS': 'Partij Sleutelstad', 'PvdA': 'Partij van de Arbeid', 'PvdD': 'Partij voor de Dieren', 'SP': 'Socialistische Partij', 'VVD': 'Volkspartij voor Vrijheid en Democratie' }
+
 window.onload = function() {
 
   // Load in json files
@@ -183,7 +186,7 @@ function draw_barchart(data) {
                     d3.selectAll(".tooltip").style("left", d3.event.pageX - 50 + "px")
                                             .style("top", d3.event.pageY - 50 + "px")
                                             .style("display", "inline-block")
-                                            .html((d.partij) + ": " + (d.stemmen));
+                                            .html((partijenVolledig[d.partij]) + ": " + (d.stemmen));
                     })
                   .on("mouseout", function() {
                     d3.select(this).attr("fill", "green");
@@ -222,7 +225,7 @@ function draw_piechart_frame(data) {
         .attr("x", margin.left + dataW/2)
         .attr("y", margin.top/2)
         .style("text-anchor", "middle")
-        .style("font-size", "24px");
+        .style("font-size", "20px");
 
   // Determine keys for color scale
   var dataKeys = []
@@ -286,7 +289,7 @@ function update_piechart(data, pieInfo, partijNaam, stemmenTotaal, firstUpdate) 
 
   // Update title
   d3.selectAll(".titlePie")
-      .text("Verdeling stemmen over wijken: " + partijNaam + " (" + stemmenTotaal + ")");
+      .text("Verdeling stemmen over wijken: " + partijenVolledig[partijNaam] + " (" + stemmenTotaal + ")");
 
   // Function for determining size of the pies
   var pie = d3.pie()
